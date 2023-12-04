@@ -20,6 +20,10 @@ La API de Song Analyzer tiene dos endpoints principales:
 ## Uso 🖥️⌨️
 Para utilizar la API de Song Analyzer, simplemente realiza solicitudes POST con la lista de URLs de letras de canciones que deseas analizar. La API procesará las letras y te devolverá el sentimiento general o un análisis detallado.
 
+### OJO 👀
+Debemos usar esta pagina https://www.letras.com/ la cual cuenta con una amplia gama de letras de canciones tanto en español como en ingles.
+De igual manera en el archivo links pruebas proyecto.txt tengo algunos links para usar como ejemplos.
+
 ## Futuras mejoras 🚀
 En el futuro, planeamos expandir la funcionalidad para analizar canciones en diferentes idiomas y géneros.
 
