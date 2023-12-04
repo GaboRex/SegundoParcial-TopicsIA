@@ -1,4 +1,3 @@
-# report_generator.py
 import csv
 from typing import List
 from datetime import datetime

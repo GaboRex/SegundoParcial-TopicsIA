@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic-settings
+python-dotenv
+numpy
+mediapipe
+python-multipart
+typing
+newspaper
+bs4
+spacy
+requests
+transformers

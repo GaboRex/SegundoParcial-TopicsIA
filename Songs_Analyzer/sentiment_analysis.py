@@ -1,4 +1,3 @@
-# analysis_helpers.py
 from newspaper import Article
 from bs4 import BeautifulSoup
 import spacy

@@ -22,7 +22,7 @@ report_generator = SentimentReportGenerator()
 def get_app_status():
     return get_status()
 
-@app.post("/Sentiment")
+@app.post("/sentiment")
 def analyze_sentiment_endpoint(song_data: SongAnalysis, language: str = 'es'):
     urls = song_data.urls
 
@@ -83,15 +83,9 @@ def detailed_analysis_endpoint(song_data: SongAnalysis, language: str = 'es'):
     
 @app.get("/reports")
 def generate_reports():
-    # Genera el informe CSV y obtén el nombre del archivo
     report_file = report_generator.generate_csv_report()
 
     if report_file is None:
         raise HTTPException(status_code=404, detail="No hay predicciones disponibles para generar un informe.")
 
     return FileResponse(report_file, media_type="text/csv", filename=report_file)
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", reload=True)
