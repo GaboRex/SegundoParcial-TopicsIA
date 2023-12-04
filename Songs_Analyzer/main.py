@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from typing import List
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from report_generator import SentimentReportGenerator
 from status import get_status
 from sentiment import analyze_sentiment
 from sentiment_analysis import extract_title_and_artist, perform_spacy_analysis
@@ -13,6 +15,7 @@ class SongAnalysis(BaseModel):
     urls: List[str]
 
 predictions = []
+report_generator = SentimentReportGenerator()
 
 
 @app.get("/status")
@@ -44,6 +47,7 @@ def analyze_sentiment_endpoint(song_data: SongAnalysis, language: str = 'es'):
 
         sentiment_info = analyze_sentiment(lyrics, language=language)
         results.append({"url": url, "info": metadata["info"], "sentiment": sentiment_info})
+        report_generator.add_prediction({"url": url, "info": metadata["info"], "sentiment": sentiment_info})
 
     return results
 
@@ -77,6 +81,17 @@ def detailed_analysis_endpoint(song_data: SongAnalysis, language: str = 'es'):
 
     return results
     
+@app.get("/reports")
+def generate_reports():
+    # Genera el informe CSV y obtén el nombre del archivo
+    report_file = report_generator.generate_csv_report()
+
+    if report_file is None:
+        raise HTTPException(status_code=404, detail="No hay predicciones disponibles para generar un informe.")
+
+    return FileResponse(report_file, media_type="text/csv", filename=report_file)
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", reload=True)
