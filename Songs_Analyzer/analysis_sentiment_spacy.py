@@ -1,16 +1,17 @@
-from fastapi import FastAPI, HTTPException
+# sentiment.py
+from fastapi import HTTPException
 from pydantic import BaseModel
 from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
 from newspaper import Article
 from bs4 import BeautifulSoup
+from typing import List
 import spacy
 import time
 import requests
 
-app = FastAPI(title="Song Sentiment Analyzer")
 
 class SongAnalysis(BaseModel):
-    url: str
+    urls: List[str]
 
 model_es = AutoModelForSequenceClassification.from_pretrained('karina-aquino/spanish-sentiment-model')
 tokenizer_es = AutoTokenizer.from_pretrained('karina-aquino/spanish-sentiment-model')
@@ -22,30 +23,6 @@ sentiment_analyzer_en = pipeline('sentiment-analysis', model=model_en, tokenizer
 
 nlp_es = spacy.load("es_core_news_md")
 nlp_en = spacy.load("en_core_web_sm")
-
-@app.get("/status")
-def get_status():
-    return {
-        "status": "Servicio en funcionamiento",
-        "models": {
-            "espanol": {
-                "model_name": "karina-aquino/spanish-sentiment-model",
-                "status": "Cargado y listo para su uso"
-            },
-            "english": {
-                "model_name": "nlptown/bert-base-multilingual-uncased-sentiment",
-                "status": "Cargado y listo para su uso"
-            },
-            "spacy_es": {
-                "model_name": "es_core_news_md",
-                "status": "Cargado y listo para su uso"
-            },
-            "spacy_en": {
-                "model_name": "en_core_web_sm",
-                "status": "Cargado y listo para su uso"
-            }
-        }
-    }
 
 def analyze_sentiment(text, language='es'):
     start_time = time.time()
@@ -114,55 +91,59 @@ def perform_spacy_analysis(text, language='es'):
 
     return {"pos_tags": pos_tags, "ner_tags": ner_tags, "embedding": embedding}
 
-@app.post("/Sentiment")
 def analyze_sentiment_endpoint(song_data: SongAnalysis, language: str = 'es'):
-    url = song_data.url
+    urls = song_data.urls
 
-    if not url:
-        raise HTTPException(status_code=400, detail="La URL no puede estar vacía.")
+    if not urls:
+        raise HTTPException(status_code=400, detail="La lista de URLs no puede estar vacía.")
 
-    metadata = extract_title_and_artist(url, language=language)
+    results = []
 
-    if not metadata["info"]:
-        raise HTTPException(status_code=400, detail="No se pudo extraer información de la URL proporcionada.")
+    for url in urls:
+        metadata = extract_title_and_artist(url, language=language)
 
-    article = Article(url)
-    article.download()
-    article.parse()
-    lyrics = article.text
+        if not metadata["info"]:
+            raise HTTPException(status_code=400, detail=f"No se pudo extraer información de la URL: {url}")
 
-    if not lyrics.strip():
-        raise HTTPException(status_code=400, detail="No se pudo extraer texto de la URL proporcionada.")
+        article = Article(url)
+        article.download()
+        article.parse()
+        lyrics = article.text
 
-    sentiment_info = analyze_sentiment(lyrics, language=language)
+        if not lyrics.strip():
+            raise HTTPException(status_code=400, detail=f"No se pudo extraer texto de la URL: {url}")
 
-    return {"info": metadata["info"], "sentiment": sentiment_info}
+        sentiment_info = analyze_sentiment(lyrics, language=language)
+        results.append({"url": url, "info": metadata["info"], "sentiment": sentiment_info})
 
-@app.post("/analysis")
+    return results
+
+
 def detailed_analysis_endpoint(song_data: SongAnalysis, language: str = 'es'):
-    url = song_data.url
+    urls = song_data.urls
 
-    if not url:
-        raise HTTPException(status_code=400, detail="La URL no puede estar vacía.")
+    if not urls:
+        raise HTTPException(status_code=400, detail="La lista de URLs no puede estar vacía.")
 
-    metadata = extract_title_and_artist(url, language=language)
+    results = []
 
-    if not metadata["info"]:
-        raise HTTPException(status_code=400, detail="No se pudo extraer información de la URL proporcionada.")
+    for url in urls:
+        metadata = extract_title_and_artist(url, language=language)
 
-    article = Article(url)
-    article.download()
-    article.parse()
-    lyrics = article.text
+        if not metadata["info"]:
+            raise HTTPException(status_code=400, detail=f"No se pudo extraer información de la URL: {url}")
 
-    if not lyrics.strip():
-        raise HTTPException(status_code=400, detail="No se pudo extraer texto de la URL proporcionada.")
+        article = Article(url)
+        article.download()
+        article.parse()
+        lyrics = article.text
 
-    sentiment_info = analyze_sentiment(lyrics, language=language)
-    spacy_analysis = perform_spacy_analysis(lyrics, language=language)
+        if not lyrics.strip():
+            raise HTTPException(status_code=400, detail=f"No se pudo extraer texto de la URL: {url}")
 
-    return {"info": metadata["info"], "sentiment": sentiment_info, "spacy_analysis": spacy_analysis}
+        sentiment_info = analyze_sentiment(lyrics, language=language)
+        spacy_analysis = perform_spacy_analysis(lyrics, language=language)
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("song:app", reload=True)
+        results.append({"url": url, "info": metadata["info"], "sentiment": sentiment_info, "spacy_analysis": spacy_analysis})
+
+    return results
