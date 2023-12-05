@@ -22,6 +22,8 @@ La API de Song Analyzer tiene dos endpoints principales:
 
 * POST /**analysis**: Este endpoint recibe una lista de URLs de letras de canciones y devuelve un análisis detallado que incluye el sentimiento general, entidades encontradas y partes del discurso.
 
+ * GET /**reports**: Este endpoint guarda todas las predicciones que se hacen en el POST y luego en la interfaz de FastAPI nos permitira descargarlas como un archivo CSV con la información más relevante de cada predicción, como el url, la informacion de la cancion, el sentimiento, el tiempo de ejecucion y el score.
+
 ## Uso 🖥️⌨️
 Para utilizar la API de Song Analyzer, simplemente realiza solicitudes POST con la lista de URLs de letras de canciones que deseas analizar. La API procesará las letras y te devolverá el sentimiento general o un análisis detallado.
 
