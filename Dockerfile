@@ -7,7 +7,7 @@ RUN pip install -r requirements.txt
 RUN python -m spacy download es_core_news_md
 RUN python -m spacy download en_core_web_sm
 
-# Descargar los modelos de transformers
+
 RUN python -c "from transformers import AutoModel; AutoModel.from_pretrained('karina-aquino/spanish-sentiment-model')"
 RUN python -c "from transformers import AutoModel; AutoModel.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')"
 
