@@ -2,10 +2,10 @@ from fastapi import FastAPI, HTTPException
 from typing import List
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from report_generator import SentimentReportGenerator
-from status import get_status
-from sentiment import analyze_sentiment
-from sentiment_analysis import extract_title_and_artist, perform_spacy_analysis
+from Songs_Analyzer.report_generator import SentimentReportGenerator
+from Songs_Analyzer.status import get_status
+from Songs_Analyzer.sentiment import analyze_sentiment
+from Songs_Analyzer.sentiment_analysis import extract_title_and_artist, perform_spacy_analysis
 from newspaper import Article
 
 

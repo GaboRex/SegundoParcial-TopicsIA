@@ -1,5 +1,6 @@
 # Song Analyzer 🎵📊
-## Descripción 👀
+
+## Descripción 🎸🎶
 Song Analyzer es una API diseñada para analizar letras de canciones, determinar el sentimiento general de la letra y proporcionar un análisis detallado, incluyendo entidades encontradas y partes del discurso.
 
 ## Propósito 🦾

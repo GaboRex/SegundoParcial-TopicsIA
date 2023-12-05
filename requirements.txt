@@ -3,7 +3,7 @@ uvicorn
 pydantic-settings
 python-dotenv
 python-multipart
-newspaper
+newspaper3k
 bs4
 spacy
 requests
